@@ -1,0 +1,114 @@
+<style>
+a.linkz {
+    position: relative;
+}
+.linkz-popover {
+  position: absolute;
+  left: 5px;
+}
+
+.linkz-popover .linkz-popover-content {
+    display: block;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.linkz-popover:before {
+    content: '';
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid black;
+    display: block;
+    width: 5px;
+    height: 5px;
+    margin: auto;
+}
+.linkz-loader {
+  animation: linkzrotate 2s linear infinite;
+  width: 50px;
+  height: 50px;
+}
+
+.linkz-loader-circle {
+  stroke: #555;
+  stroke-dasharray: 30;
+  stroke-dashoffset: 0;
+  animation: linkzdash 1.5s ease-in-out infinite;
+}
+
+@keyframes linkzrotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes linkzdash {
+  0% {
+    stroke-dashoffset: 30;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 30;
+  }
+}
+</style>
+<script>
+async function getThirdPartyUrls() {
+  const currentHostname = window.location.hostname;
+  const anchors = document.getElementsByTagName('a');
+
+  for (let i = 0; i < anchors.length; i++) {
+    const anchor = anchors[i];
+    if(!anchor.href){
+      continue;
+    }
+    const url = new URL(anchor.href);
+
+    if (url.hostname !== currentHostname) {
+      anchor.classList.add('linkz');
+      anchor.addEventListener('mouseover', handleMouseOveLinkz);
+      anchor.addEventListener('mouseout', handleMouseOutLinkz);
+    }
+  }
+  return true;
+}
+
+// Event handler for mouseover
+async function handleMouseOveLinkz(event) {
+  const element = event.target;
+  console.log('Mouse over:', element.textContent);
+
+  const htmlContent = `<div class="linkz-popover">
+    <div class="linkz-popover-content">
+      <svg class="linkz-loader" viewBox="0 0 50 50">
+        <circle class="linkz-loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+      </svg>
+    </div>
+  </div>`;
+  element.insertAdjacentHTML('beforeend', htmlContent);
+
+  var getData = await fetch('https://august-alternative-seventh-curious.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
+  var allMeta = await getData.json();
+  
+}
+
+// Event handler for mouseout
+function handleMouseOutLinkz(event) {
+  const element = event.target;
+  console.log('Mouse out:', element.textContent);
+  element.querySelector('.linkz-popover').remove();
+}
+
+getThirdPartyUrls();
+</script>
+{% schema %}
+  {
+    "name": "Linkz App",
+    "target": "body",
+    "settings": []
+  }
+{% endschema %}
