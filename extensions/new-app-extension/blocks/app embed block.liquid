@@ -55,6 +55,43 @@ a.linkz {
     stroke-dashoffset: 30;
   }
 }
+.linkz-top {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+.linkz-top img {
+    width: 20px;
+    margin-right: 10px;
+}
+.linkz-title {
+    font-size: 16px;
+    font-weight: bold;
+}
+.linkz-website {
+    font-size: 12px;
+}
+.linkz-image-continer {
+    margin: 10px 0 12px 0;
+    background-color: rgba(135,135,135,0.2);
+    border-radius: 4px;
+    height: 141px;
+    min-width: 260px;
+    overflow: hidden;
+    position: relative;
+}
+.linkz-image {
+    background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Reality_check_ESA384313.jpg/1200px-Reality_check_ESA384313.jpg);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+    display: block !important;
+}
+.linkz-description {
+    font-size: 12px;
+}
 </style>
 <script>
 async function getThirdPartyUrls() {
@@ -91,9 +128,23 @@ async function handleMouseOveLinkz(event) {
   </div>`;
   element.insertAdjacentHTML('beforeend', htmlContent);
 
-  var getData = await fetch('https://august-alternative-seventh-curious.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
+  var getData = await fetch('https://bind-donna-acre-bio.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
   var allMeta = await getData.json();
-  
+
+  var content = `<div class="linkz-popover-content">
+    <div class="linkz-top">
+      <img src="https://en.wikipedia.org/static/favicon/wikipedia.ico">
+      <div class="linkz-main">
+          <div class="linkz-title">Virtual reality - Wikipedia</div>
+          <div class="linkz-website">wikipedia.org</div>
+      </div>
+    </div>
+    <div class="linkz-image-continer">
+      <div class="linkz-image"></div>
+    </div>
+    <div class="linkz-description">Virtual reality ( VR) is a simulated experience that employs pose tracking and 3D near-eye displays to give the user an immersive feel of a virtual world. Applications of virtual reality include entertainment (particularly video games), education (such as medical or military training) and business (such as virtual meetings).</div>
+  </div>`;
+  element.querySelector('.linkz-popover').innerHTML = content;
 }
 
 // Event handler for mouseout
