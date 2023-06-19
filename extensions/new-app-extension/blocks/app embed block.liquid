@@ -129,8 +129,8 @@ async function handleMouseOveLinkz(event) {
     </div>
   </div>`;
   element.insertAdjacentHTML('beforeend', htmlContent);
-
-  var getData = await fetch('https://toxic-adjusted-resulted-mind.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
+  var getData = await fetch('https://pump-leone-furthermore-embedded.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
+  console.log(getData);
   var allMeta = await getData.json();
   console.log(allMeta)
 
