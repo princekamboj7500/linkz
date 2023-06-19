@@ -4,7 +4,7 @@ a.linkz {
 }
 .linkz-popover {
   position: absolute;
-  left: 5px;
+  bottom: 100%;
 }
 
 .linkz-popover .linkz-popover-content {
@@ -16,15 +16,16 @@ a.linkz {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 .linkz-popover:before {
-    content: '';
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid black;
-    display: block;
-    width: 5px;
-    height: 5px;
-    margin: auto;
+  content: '';
+  {/*border-left: 5px solid transparent;*/}
+  {/*border-right: 5px solid transparent;*/}
+  {/*border-bottom: 5px solid black;*/}
+  display: block;
+  width: 5px;
+  height: 5px;
+  margin: auto;
 }
+
 .linkz-loader {
   animation: linkzrotate 2s linear infinite;
   width: 50px;
@@ -36,6 +37,44 @@ a.linkz {
   stroke-dasharray: 30;
   stroke-dashoffset: 0;
   animation: linkzdash 1.5s ease-in-out infinite;
+}
+
+.flexContainer{
+  display: flex;
+}
+
+.popoverTitle{
+  margin-left: 16px;
+}
+
+.popoverTitle h4{
+  margin-top: 0px;
+  margin-bottom: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: -webkit-left;
+}
+img#favIcon {
+  width: 25px;
+}
+p#decription {
+  margin-bottom: 0px;
+  text-align: -webkit-left;
+  font-size: 13px;
+  line-height: 16px;
+}
+#app-url{
+  text-align: -webkit-left;
+  font-size: 13px;
+  line-height: 16px;
+  margin-top: 0px;
+  margin-bottom: 7px;
+  display:none;
+}
+
+#popover-image{
+  width: 300px;
+  height: 150px;
 }
 
 @keyframes linkzrotate {
@@ -54,43 +93,6 @@ a.linkz {
   100% {
     stroke-dashoffset: 30;
   }
-}
-.linkz-top {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 10px;
-}
-.linkz-top img {
-    width: 20px;
-    margin-right: 10px;
-}
-.linkz-title {
-    font-size: 16px;
-    font-weight: bold;
-}
-.linkz-website {
-    font-size: 12px;
-}
-.linkz-image-continer {
-    margin: 10px 0 12px 0;
-    background-color: rgba(135,135,135,0.2);
-    border-radius: 4px;
-    height: 141px;
-    min-width: 260px;
-    overflow: hidden;
-    position: relative;
-}
-.linkz-image {
-    background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Reality_check_ESA384313.jpg/1200px-Reality_check_ESA384313.jpg);
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100%;
-    width: 100%;
-    display: block !important;
-}
-.linkz-description {
-    font-size: 12px;
 }
 </style>
 <script>
@@ -117,34 +119,46 @@ async function getThirdPartyUrls() {
 // Event handler for mouseover
 async function handleMouseOveLinkz(event) {
   const element = event.target;
+  console.log(element)
   console.log('Mouse over:', element.textContent);
+
 
   const htmlContent = `<div class="linkz-popover">
     <div class="linkz-popover-content">
       <svg class="linkz-loader" viewBox="0 0 50 50">
         <circle class="linkz-loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
       </svg>
-    </div>
-  </div>`;
-  element.insertAdjacentHTML('beforeend', htmlContent);
-
-  var getData = await fetch('https://bind-donna-acre-bio.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
-  var allMeta = await getData.json();
-
-  var content = `<div class="linkz-popover-content">
-    <div class="linkz-top">
-      <img src="https://en.wikipedia.org/static/favicon/wikipedia.ico">
-      <div class="linkz-main">
-          <div class="linkz-title">Virtual reality - Wikipedia</div>
-          <div class="linkz-website">wikipedia.org</div>
+      
+      <div class="flexContainer">
+        <div class="favIconDiv">
+          <img id="favIcon"/>
+        </div>
+        <div class="popoverTitle">
+          <h4 id="og-title" style="color:{{ block.settings.color }}; font-family: {{block.settings.heading_font}}"></h4>
+          <p id="app-url">Shopify.com</p>
+        </div>
       </div>
+      
+      <img id="popover-image"/> 
+      <p id="decription" style="color:{{ block.settings.color }}; font-family: {{block.settings.heading_font}}"></p>
     </div>
-    <div class="linkz-image-continer">
-      <div class="linkz-image"></div>
-    </div>
-    <div class="linkz-description">Virtual reality ( VR) is a simulated experience that employs pose tracking and 3D near-eye displays to give the user an immersive feel of a virtual world. Applications of virtual reality include entertainment (particularly video games), education (such as medical or military training) and business (such as virtual meetings).</div>
   </div>`;
-  element.querySelector('.linkz-popover').innerHTML = content;
+
+
+  element.insertAdjacentHTML('beforeend', htmlContent);
+  var getData = await fetch('https://properties-glance-thanksgiving-territory.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
+  console.log(getData);
+  var allMeta = await getData.json();
+  console.log("meta data",allMeta)
+
+  if(allMeta.length > 0){
+    element.querySelector("#app-url").style.display = "block";
+    document.getElementsByClassName("linkz-loader")[0].remove();
+    element.querySelector("#favIcon").setAttribute("src", allMeta[16].content);
+    element.querySelector("#og-title").innerHTML = allMeta[6].content;
+    element.querySelector("#popover-image").setAttribute("src", allMeta[8].content);
+    element.querySelector("#decription").innerHTML = allMeta[1].content;
+  }
 }
 
 // Event handler for mouseout
@@ -160,6 +174,16 @@ getThirdPartyUrls();
   {
     "name": "Linkz App",
     "target": "body",
-    "settings": []
+    "settings": [        
+       {
+          "label": "Color", "id": "color", "type": "color", "default": "#000000"
+        },
+        {
+          "type": "font_picker",
+          "id": "heading_font",
+          "label": "Heading font",
+          "default": "helvetica_n4"
+        }
+      ]
   }
 {% endschema %}
