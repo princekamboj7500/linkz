@@ -4,8 +4,8 @@ a.linkz {
 }
 .linkz-popover {
   position: absolute;
-  bottom: 100%;
-  left:10%;
+  left: 5px;
+  bottom:100%;
 }
 
 .linkz-popover .linkz-popover-content {
@@ -16,17 +16,16 @@ a.linkz {
     border-radius: 4px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
-.linkz-popover:before {
-  content: '';
-  {/*border-left: 5px solid transparent;*/}
-  {/*border-right: 5px solid transparent;*/}
-  {/*border-bottom: 5px solid black;*/}
-  display: block;
-  width: 5px;
-  height: 5px;
-  margin: auto;
+.linkz-popover:after {
+    content: '';
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid black;
+    display: block;
+    width: 5px;
+    height: 5px;
+    margin: auto;
 }
-
 .linkz-loader {
   animation: linkzrotate 2s linear infinite;
   width: 50px;
@@ -39,52 +38,6 @@ a.linkz {
   stroke-dashoffset: 0;
   animation: linkzdash 1.5s ease-in-out infinite;
 }
-
-.flexContainer{
-  display: none;
-}
-
-.popoverTitle{
-  margin-left: 16px;
-}
-
-.popoverTitle h4{
-  margin-top: 0px;
-  margin-bottom: 3px;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: -webkit-left;
-}
-img#favIcon {
-  width: 25px;
-}
-p#decription {
-  margin-bottom: 0px;
-  text-align: -webkit-left;
-  font-size: 13px;
-  line-height: 16px;
-}
-#app-url{
-  text-align: -webkit-left;
-  font-size: 13px;
-  line-height: 16px;
-  margin-top: 0px;
-  margin-bottom: 7px;
-  display:none;
-}
-
-#popover-image{
- {/* width: 300px; */}
-  {/*height: 150px;*/}
-}
-
-.popImg{
-  width: 300px;
-  background: #e3e3e3;
-  height: 131px;
-  display:none;
-}
-
 
 @keyframes linkzrotate {
   100% {
@@ -102,6 +55,44 @@ p#decription {
   100% {
     stroke-dashoffset: 30;
   }
+}
+.linkz-top {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+.linkz-top img {
+    width: 20px;
+    margin-right: 10px;
+}
+.linkz-title {
+    font-size: 13px;
+    font-weight: bold;
+    text-align:initial;
+}
+.linkz-website {
+    font-size: 12px;
+    text-align:initial;
+}
+.linkz-image-continer {
+    margin: 10px 0 12px 0;
+    background-color: rgba(135,135,135,0.2);
+    border-radius: 4px;
+    height: 141px;
+    min-width: 260px;
+    overflow: hidden;
+    {/*position: relative;*/}
+}
+.linkz-image {
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 220px;
+    {/*display: block !important;*/}
+}
+.linkz-description {
+    font-size: 12px;
 }
 </style>
 <script>
@@ -128,60 +119,45 @@ async function getThirdPartyUrls() {
 // Event handler for mouseover
 async function handleMouseOveLinkz(event) {
   const element = event.target;
-  console.log(element)
   console.log('Mouse over:', element.textContent);
-
 
   const htmlContent = `<div class="linkz-popover">
     <div class="linkz-popover-content">
       <svg class="linkz-loader" viewBox="0 0 50 50">
         <circle class="linkz-loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
       </svg>
-
-      <div class="flexContainer">
-        <div class="favIconDiv">
-          <img id="favIcon"/>
-        </div>
-        <div class="popoverTitle">
-          <h4 id="og-title" style="color:{{ block.settings.color }}; font-family: {{block.settings.heading_font}}"></h4>
-          <p id="app-url">Shopify.com</p>
-        </div>
-      </div>
-      <div class="popImg">
-        <img id="popover-image"/> 
-      </div>
-      
-      <p id="decription" style="color:{{ block.settings.color }}; font-family: {{block.settings.heading_font}}"></p>
-      
     </div>
   </div>`;
-
-
   element.insertAdjacentHTML('beforeend', htmlContent);
-  var getData = await fetch('https://accepted-ata-staffing-lottery.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
-  console.log(getData);
+
+  var getData = await fetch('https://toxic-adjusted-resulted-mind.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
   var allMeta = await getData.json();
-  console.log("meta data",allMeta)
+  console.log(allMeta)
 
+  let imgCheck = allMeta.find(obj => obj.name == "og:image");
+  let title = allMeta.find(obj => obj.name == "og:title");
+  let favIcon = allMeta.find(obj => obj.name == "icon");
+  let description = allMeta.find(obj => obj.name == "description");
 
-
-  if(allMeta.length > 0){
-    if(allMeta[8].content == ""){
-      element.querySelector("#popover-image").style.display = "none";
-    }else{
-      element.querySelector("#popover-image").setAttribute("src", allMeta[8].content);
-    }
-    document.getElementsByClassName("flexContainer")[0].style.display = "flex";
-    document.getElementsByClassName("popImg")[0].style.display = "block";
-    element.querySelector("#app-url").style.display = "block";
-    document.getElementsByClassName("linkz-loader")[0].remove();
-    document.getElementsByClassName("linkz-popover")[0].style.marginLeft = "-128px";
-    element.querySelector("#favIcon").setAttribute("src", allMeta[16].content);
-    element.querySelector("#og-title").innerHTML = allMeta[6].content;
-    
-    element.querySelector("#popover-image").style.width = "250px";
-    element.querySelector("#decription").innerHTML = allMeta[1].content;
+  document.getElementsByClassName("linkz-popover")[0].style.marginLeft = "-105px";
+  if(imgCheck.content == ""){
+    document.getElementsByClassName("linkz-image-continer")[0].style.display = "none"
   }
+  var content = `<div class="linkz-popover-content">
+    <div class="linkz-top">
+      <img src="${favIcon.content}">
+      <div class="linkz-main">
+          <div class="linkz-title" style="color:{{ block.settings.textColor }}; font-family: {{block.settings.textFont}}">${title.content}</div>
+          <div class="linkz-website">Shopify.com</div>
+      </div>
+    </div>
+    <div class="linkz-image-continer">
+      
+      <img class="linkz-image" src="${imgCheck.content}">
+    </div>
+    <div class="linkz-description" style="color:{{ block.settings.textColor }}; font-family: {{block.settings.textFont}}">${description.content}</div>
+  </div>`;
+  element.querySelector('.linkz-popover').innerHTML = content;
 }
 
 // Event handler for mouseout
@@ -197,16 +173,15 @@ getThirdPartyUrls();
   {
     "name": "Linkz App",
     "target": "body",
-    "settings": [        
-       {
-          "label": "Color", "id": "color", "type": "color", "default": "#000000"
+    "settings": [{
+          "label": "Color", "id": "textColor", "type": "color", "default": "#000000"
         },
         {
           "type": "font_picker",
-          "id": "heading_font",
+          "id": "textFont",
           "label": "Heading font",
           "default": "helvetica_n4"
         }
-      ]
+        ]
   }
 {% endschema %}
