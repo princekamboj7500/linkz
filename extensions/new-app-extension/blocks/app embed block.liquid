@@ -5,6 +5,7 @@ a.linkz {
 .linkz-popover {
   position: absolute;
   bottom: 100%;
+  left:10%;
 }
 
 .linkz-popover .linkz-popover-content {
@@ -40,7 +41,7 @@ a.linkz {
 }
 
 .flexContainer{
-  display: flex;
+  display: none;
 }
 
 .popoverTitle{
@@ -73,9 +74,17 @@ p#decription {
 }
 
 #popover-image{
-  width: 300px;
-  height: 150px;
+ {/* width: 300px; */}
+  {/*height: 150px;*/}
 }
+
+.popImg{
+  width: 300px;
+  background: #e3e3e3;
+  height: 131px;
+  display:none;
+}
+
 
 @keyframes linkzrotate {
   100% {
@@ -128,7 +137,7 @@ async function handleMouseOveLinkz(event) {
       <svg class="linkz-loader" viewBox="0 0 50 50">
         <circle class="linkz-loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
       </svg>
-      
+
       <div class="flexContainer">
         <div class="favIconDiv">
           <img id="favIcon"/>
@@ -138,25 +147,39 @@ async function handleMouseOveLinkz(event) {
           <p id="app-url">Shopify.com</p>
         </div>
       </div>
+      <div class="popImg">
+        <img id="popover-image"/> 
+      </div>
       
-      <img id="popover-image"/> 
       <p id="decription" style="color:{{ block.settings.color }}; font-family: {{block.settings.heading_font}}"></p>
+      
     </div>
   </div>`;
 
 
   element.insertAdjacentHTML('beforeend', htmlContent);
-  var getData = await fetch('https://properties-glance-thanksgiving-territory.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
+  var getData = await fetch('https://accepted-ata-staffing-lottery.trycloudflare.com/api/meta?url='+encodeURIComponent(element.href));
   console.log(getData);
   var allMeta = await getData.json();
   console.log("meta data",allMeta)
 
+
+
   if(allMeta.length > 0){
+    if(allMeta[8].content == ""){
+      element.querySelector("#popover-image").style.display = "none";
+    }else{
+      element.querySelector("#popover-image").setAttribute("src", allMeta[8].content);
+    }
+    document.getElementsByClassName("flexContainer")[0].style.display = "flex";
+    document.getElementsByClassName("popImg")[0].style.display = "block";
     element.querySelector("#app-url").style.display = "block";
     document.getElementsByClassName("linkz-loader")[0].remove();
+    document.getElementsByClassName("linkz-popover")[0].style.marginLeft = "-128px";
     element.querySelector("#favIcon").setAttribute("src", allMeta[16].content);
     element.querySelector("#og-title").innerHTML = allMeta[6].content;
-    element.querySelector("#popover-image").setAttribute("src", allMeta[8].content);
+    
+    element.querySelector("#popover-image").style.width = "250px";
     element.querySelector("#decription").innerHTML = allMeta[1].content;
   }
 }
