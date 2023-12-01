@@ -15,12 +15,16 @@
   "dependencies": {
     "@shopify/shopify-app-express": "^2.1.1",
     "@shopify/shopify-app-session-storage-sqlite": "^1.2.2",
-    "compression": "^1.7.4",
-    "cross-env": "^7.0.3",
-    "serve-static": "^1.14.1",
     "axios": "^1.4.0",
     "cheerio": "^1.0.0-rc.12",
+    "compression": "^1.7.4",
+    "cross-env": "^7.0.3",
+    "metascraper": "^5.39.0",
+    "metascraper-image": "^5.39.0",
+    "metascraper-title": "^5.39.0",
+    "metascraper-url": "^5.39.0",
     "qs": "^6.11.2",
+    "serve-static": "^1.14.1",
     "simple-unfurl": "^1.0.1"
   },
   "devDependencies": {

@@ -5,7 +5,12 @@ import express from "express";
 import serveStatic from "serve-static";
 import axios from 'axios';
 import qs from 'qs';
-
+import metascraper from 'metascraper';
+import metascraperUrl from 'metascraper-url';
+import metascraperDate from 'metascraper-date';
+import metascraperTitle from 'metascraper-title';
+import metascraperDescription from 'metascraper-description';
+import metascraperImage from 'metascraper-image';
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
@@ -16,6 +21,13 @@ const PORT = parseInt(
   10
 );
 
+
+// const metascraperInstance = metascraper([
+//   metascraperUrl()(),
+//   metascraperDate()(),
+//   metascraperTitle()(),
+//   metascraperDescription()(),
+// ]);
 const STATIC_PATH =
   process.env.NODE_ENV === "production"
     ? `${process.cwd()}/frontend/dist`
@@ -37,38 +49,66 @@ app.post(
 
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js
-app.get('/api/meta', async(req, res)=>{
-  const websiteUrl = req.query.url;
 
-  var data = qs.stringify({
-    'token': 'xoxc-2057278219841-2068467992128-4426923932900-6c29c20076cad3380efafcaf897945e95d20bcf1a8e65fbf9de598fec48baa62',
-    'url': websiteUrl,
-    'channel': 'D04TNCHSREG',
-    'client_msg_id': '8880c239-41d5-4963-84f2-cbfbc6c095d0',
-    '_x_reason': 'fetch-unfurl-preview',
-    '_x_mode': 'online',
-    '_x_sonic': 'true',
-    '_x_app_name': 'client' 
-  });
-  var config = {
-    method: 'post',
-    url: 'https://squadifypro.slack.com/api/chat.unfurlLink?_x_id=2f1695db-1699352144.306&_x_csid=iFxV91H4HoA&slack_route=T021P866FQR&_x_version_ts=1699340254&_x_frontend_build_type=current&_x_desktop_ia=3&_x_gantry=true&fp=a1',
-    headers: { 
-      'Cookie': '_rdt_uuid=1665638065769.4fee7874-cfa3-425b-89be-64c12dfbbb54; __qca=P0-384703422-1665638066049; _lc2_fpi=e00b11ac9c9b--01gf7w99m6a26gz07dqdm9d6nk; __adroll_fpc=ba0c425dc45b794cdf51252c25561caa-1665638130554; _fbp=fb.1.1665638130954.29629324; b=.413a06d5545e66f5b84e63861b2ccd36; shown_ssb_redirect_page=1; shown_download_ssb_modal=1; show_download_ssb_banner=1; no_download_ssb_banner=1; ssb_instance_id=dccfd13f-ca28-54ac-9678-2c6435999b1e; tz=330; _gcl_au=1.1.727902760.1696395823; _lc2_fpi_meta={%22w%22:1696395823931}; _li_dcdm_c=.slack.com; __li_idexc=1; __li_idexc_meta={%22w%22:1698905193068%2C%22e%22:1699509993068}; cjConsent=MHxOfDB8Tnww; cjUser=511ed90a-6973-4033-b8a3-850c4818a4ad; _cs_c=0; _gid=GA1.2.2093111049.1699345020; lc=1699345033; x=413a06d5545e66f5b84e63861b2ccd36.1699352083; _cs_mk_ga=0.5862473719552557_1699352088606; DriftPlaybook=B; _gat_UA-56978219-1=1; _ga_QTJQME5M5D=GS1.1.1699352089.32.0.1699352089.60.0.0; _ga=GA1.1.997304085.1665638066; _cs_cvars=%7B%221%22%3A%5B%22Visitor%20ID%22%2C%22.413a06d5545e66f5b84e63861b2ccd36%22%5D%2C%222%22%3A%5B%22Is%20Signed%20In%22%2C%22true%22%5D%2C%223%22%3A%5B%22URL%20Path%22%2C%22%2Fintl%2Fen-in%2F%22%5D%2C%224%22%3A%5B%22Visitor%20Type%22%2C%22customer%22%5D%7D; _cs_id=5c32651e-4179-a104-fcab-2b7b49b3fec0.1665638065.30.1699352089.1699352089.1.1699802065714; _cs_s=1.0.0.1699353889868; __ar_v4=KDMBLDIYHFHI5NUNKGJ4LV%3A20231107%3A1%7CQCM34G7NBZEHHATIFDIUBJ%3A20231107%3A2%7C4UHU5P4P3FESHLUMNBLWAU%3A20231107%3A2%7CK2HN2U4VSJGOVKC2WJLQNH%3A20231107%3A1; _li_ss=CjkKBQgKELgWCgYI3QEQuBYKBQgMEMIWCgYIogEQuBYKCQj_____BxC9FgoGCIsBELgWCgYI0gEQuBYSPw2Jmk1XEjgKBgjKARC4FgoGCJMBELYWCgYIxQEQuBYKBgiUARC1FgoGCMcBELgWCgYIqwEQtRYKBgjIARC4FhI3DQLmSF8SMAoGCMoBELgWCgYIkwEQthYKBgjFARC4FgoGCMcBELgWCgYIqwEQthYKBgjIARC4FhIvDb_v3VgSKAoGCJMBELYWCgYIxQEQuBYKBgjHARC4FgoGCKsBELYWCgYIyAEQuBY; _li_ss_meta={%22w%22:1699352091926%2C%22e%22:1701944091926}; OptanonConsent=isGpcEnabled=0&datestamp=Tue+Nov+07+2023+15%3A45%3A03+GMT%2B0530+(India+Standard+Time)&version=202211.1.0&isIABGlobal=false&hosts=&consentId=0a0798ca-a027-4506-afe3-6d510a06e221&interactionCount=0&landingPath=NotLandingPage&groups=1%3A1%2C3%3A1%2C2%3A1%2C4%3A1&AwaitingReconsent=false; d=xoxd-1CLYamaCsObYimwAZXYjoTPOueZJF7uqTyTI89EjFjsCZPo2UnWb%2F%2FRRjeuPQL3GRbUY%2FcbLzfWywoidMgEyLPFm%2FSSzvYZ4heqvl0YoXn%2Fmh%2F1wYU68%2B5W0huWGXWrPOUdmBd5dUYj1jpIrWUYEgi9a%2BD0ZkxPaK7QgN5ONdwCDa%2FSUtPsJeBx%2Be3SsKCxEDRbp4rvkYv4%3D; d-s=1699352111', 
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    data : data
-  };
+app.get("api/test", async(req,res)=>{
+  const websiteUrl = req.query.url;
+  console.log("I  m called");
+  try {
+    const response = await metascraper({ url: websiteUrl });
+    res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch metadata' });
+  }
+})
+
+
+
+app.get('/api/meta', async(req, res)=>{
+  // console.log(req,"test")
   
-  axios(config)
-  .then(function (response) {
-    console.log(JSON.stringify(response.data));
-    res.send(response.data)
-  })
-  .catch(function (error) {
-    console.log(error);
-    res.send(error)
-  });
+ const websiteUrl = req.query.url;
+ try {
+    const response = await axios.get(`https://api.microlink.io/?url=${encodeURIComponent(websiteUrl)}`);
+    const metadata = response.data;
+    res.send(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch metadata' });
+  }
+
+  
+// console.log(websiteUrl,"testing-----");
+//   var data = qs.stringify({
+//     'token': 'xoxc-2057278219841-2068467992128-4426923932900-6c29c20076cad3380efafcaf897945e95d20bcf1a8e65fbf9de598fec48baa62',
+//     'url': websiteUrl,
+//     'channel': 'D04TNCHSREG',
+//     'client_msg_id': '8880c239-41d5-4963-84f2-cbfbc6c095d0',
+//     '_x_reason': 'fetch-unfurl-preview',
+//     '_x_mode': 'online',
+//     '_x_sonic': 'true',
+//     '_x_app_name': 'client' 
+//   });
+//   var config = {
+//     method: 'post',
+//     url: 'https://squadifypro.slack.com/api/chat.unfurlLink?_x_id=2f1695db-1699352144.306&_x_csid=iFxV91H4HoA&slack_route=T021P866FQR&_x_version_ts=1699340254&_x_frontend_build_type=current&_x_desktop_ia=3&_x_gantry=true&fp=a1',
+//     headers: { 
+//       // 'Cookie': '_rdt_uuid=1665638065769.4fee7874-cfa3-425b-89be-64c12dfbbb54; __qca=P0-384703422-1665638066049; _lc2_fpi=e00b11ac9c9b--01gf7w99m6a26gz07dqdm9d6nk; __adroll_fpc=ba0c425dc45b794cdf51252c25561caa-1665638130554; _fbp=fb.1.1665638130954.29629324; b=.413a06d5545e66f5b84e63861b2ccd36; shown_ssb_redirect_page=1; shown_download_ssb_modal=1; show_download_ssb_banner=1; no_download_ssb_banner=1; ssb_instance_id=dccfd13f-ca28-54ac-9678-2c6435999b1e; tz=330; _gcl_au=1.1.727902760.1696395823; _lc2_fpi_meta={%22w%22:1696395823931}; _li_dcdm_c=.slack.com; __li_idexc=1; __li_idexc_meta={%22w%22:1698905193068%2C%22e%22:1699509993068}; cjConsent=MHxOfDB8Tnww; cjUser=511ed90a-6973-4033-b8a3-850c4818a4ad; _cs_c=0; _gid=GA1.2.2093111049.1699345020; lc=1699345033; x=413a06d5545e66f5b84e63861b2ccd36.1699352083; _cs_mk_ga=0.5862473719552557_1699352088606; DriftPlaybook=B; _gat_UA-56978219-1=1; _ga_QTJQME5M5D=GS1.1.1699352089.32.0.1699352089.60.0.0; _ga=GA1.1.997304085.1665638066; _cs_cvars=%7B%221%22%3A%5B%22Visitor%20ID%22%2C%22.413a06d5545e66f5b84e63861b2ccd36%22%5D%2C%222%22%3A%5B%22Is%20Signed%20In%22%2C%22true%22%5D%2C%223%22%3A%5B%22URL%20Path%22%2C%22%2Fintl%2Fen-in%2F%22%5D%2C%224%22%3A%5B%22Visitor%20Type%22%2C%22customer%22%5D%7D; _cs_id=5c32651e-4179-a104-fcab-2b7b49b3fec0.1665638065.30.1699352089.1699352089.1.1699802065714; _cs_s=1.0.0.1699353889868; __ar_v4=KDMBLDIYHFHI5NUNKGJ4LV%3A20231107%3A1%7CQCM34G7NBZEHHATIFDIUBJ%3A20231107%3A2%7C4UHU5P4P3FESHLUMNBLWAU%3A20231107%3A2%7CK2HN2U4VSJGOVKC2WJLQNH%3A20231107%3A1; _li_ss=CjkKBQgKELgWCgYI3QEQuBYKBQgMEMIWCgYIogEQuBYKCQj_____BxC9FgoGCIsBELgWCgYI0gEQuBYSPw2Jmk1XEjgKBgjKARC4FgoGCJMBELYWCgYIxQEQuBYKBgiUARC1FgoGCMcBELgWCgYIqwEQtRYKBgjIARC4FhI3DQLmSF8SMAoGCMoBELgWCgYIkwEQthYKBgjFARC4FgoGCMcBELgWCgYIqwEQthYKBgjIARC4FhIvDb_v3VgSKAoGCJMBELYWCgYIxQEQuBYKBgjHARC4FgoGCKsBELYWCgYIyAEQuBY; _li_ss_meta={%22w%22:1699352091926%2C%22e%22:1701944091926}; OptanonConsent=isGpcEnabled=0&datestamp=Tue+Nov+07+2023+15%3A45%3A03+GMT%2B0530+(India+Standard+Time)&version=202211.1.0&isIABGlobal=false&hosts=&consentId=0a0798ca-a027-4506-afe3-6d510a06e221&interactionCount=0&landingPath=NotLandingPage&groups=1%3A1%2C3%3A1%2C2%3A1%2C4%3A1&AwaitingReconsent=false; d=xoxd-1CLYamaCsObYimwAZXYjoTPOueZJF7uqTyTI89EjFjsCZPo2UnWb%2F%2FRRjeuPQL3GRbUY%2FcbLzfWywoidMgEyLPFm%2FSSzvYZ4heqvl0YoXn%2Fmh%2F1wYU68%2B5W0huWGXWrPOUdmBd5dUYj1jpIrWUYEgi9a%2BD0ZkxPaK7QgN5ONdwCDa%2FSUtPsJeBx%2Be3SsKCxEDRbp4rvkYv4%3D; d-s=1699352111', 
+//       'Authorization': 'Bearer xoxe.xoxp-1-Mi0yLTIwNTcyNzgyMTk4NDEtNDU2NjI4NTk3NjY3NC02MjYxMTM5OTUyNDUzLTYyODcwNTU2NzMzMjgtNGM5NDdhMmE2ZjY5MDg0ZGQ5YjkwM2YwY2I5ZTdlMzhiNGI0M2RhNzcxZDk3MTI4YzQxOWViYmJhYWE2NjdkYw',
+//       'Content-Type': 'application/x-www-form-urlencoded'
+//     },
+//     data : data
+//   };
+  
+  // axios(config)
+  // .then(function (response) {
+  //   console.log(JSON.stringify(response.data));
+  //   res.status(200).json({ message: "success", metadata });
+  // })
+  // .catch(function (error) {
+  //   console.log(error);
+  //   res.send(error)
+  // });
   
 
 
@@ -92,6 +132,10 @@ app.use("/api/*", shopify.validateAuthenticatedSession());
 
 
 app.use(express.json());
+
+
+
+
 
 const getMetaTags = async (url) => {
   try {

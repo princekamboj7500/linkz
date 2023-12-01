@@ -102,36 +102,56 @@ a.linkz {
 }
 </style>
 {% assign linkz_font = block.settings.textFont %}
+
 <script>
+
+ var test = '{{block.settings.exclude}}'
+ var excludedUrls = test.split(',').map(url => url.trim());
+ 
 async function getThirdPartyUrls() {
   const currentHostname = window.location.hostname;
-  const anchors = document.getElementsByTagName('a');
 
+  const anchors = document.getElementsByTagName('a');
+ 
+ 
   for (let i = 0; i < anchors.length; i++) {
     const anchor = anchors[i];
     if(!anchor.href){
       continue;
     }
+    const dataSrcValue = anchor.getAttribute('data-src');
     const url = new URL(anchor.href);
-
-    if (url.hostname !== currentHostname) {
-      anchor.classList.add('linkz');
-      anchor.addEventListener('mouseover', handleMouseOveLinkz);
-      anchor.addEventListener('mouseout', handleMouseOutLinkz);
+ 
+    if (excludedUrls.find(x=>x == window.location.href)) {
+       continue; 
     }
-  }
-  return true;
-}
+   
+    
+   if (url.hostname !== currentHostname) {
+       anchor.classList.add('linkz');
+       anchor.addEventListener('mouseover', handleMouseOveLinkz);
+       anchor.addEventListener('mouseout', handleMouseOutLinkz);
+    }
 
-// Event handler for mouseover
-async function handleMouseOveLinkz(event) {
-  const element = event.target;
-  if(element.querySelector('.linkz-popover-content')){
+     if(dataSrcValue !== null && url.hostname == currentHostname ){
+          
+          anchor.classList.add('linkz');
+        anchor.addEventListener('mouseover', handleMouseForProduct);
+          anchor.addEventListener('mouseout', handleMouseOutLinkz);
+    }
+    }
+     return true;
+}
+ 
+
+async function handleMouseForProduct(event){
+const element = event.target;
+
+ if(element.querySelector('.linkz-popover-content')){
     element.querySelector('.linkz-popover').classList.remove('linkz-hide');
     return false;
   }
-
-  const htmlContent = `<div class="linkz-popover">
+const htmlContent = `<div class="linkz-popover">
     <div class="linkz-popover-content">
       <svg class="linkz-loader" viewBox="0 0 50 50">
         <circle class="linkz-loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
@@ -139,30 +159,64 @@ async function handleMouseOveLinkz(event) {
     </div>
   </div>`;
   element.insertAdjacentHTML('beforeend', htmlContent);
-  var unfurlLink = await fetch('/tools/meta?url='+encodeURIComponent(element.href));
-  var unfurlLinkMeta = await unfurlLink.json();
-  if(unfurlLinkMeta.ok && Object.keys(unfurlLinkMeta.attachments).length){
-    unfurlLinkMeta = Object.values(unfurlLinkMeta.attachments)[0];
-    if(unfurlLinkMeta.text){
-      var txt = unfurlLinkMeta.text.length > 100 ? unfurlLinkMeta.text.substr(0,100)+ '...' : unfurlLinkMeta.text;
-    }else{
-      var txt = unfurlLinkMeta.title
-    }
-
-    if(unfurlLinkMeta.image_url){
-      var image_url = unfurlLinkMeta.image_url;
-    }else if(unfurlLinkMeta.thumb_url){
-      var image_url = unfurlLinkMeta.thumb_url;
+   var response = await fetch(`${element.href}.json`);
+  var result = await response.json();
+   var txt = result.product.body_html.length > 100 ? result.product.body_html.substr(0,100)+ '...' : result.product.body_html;
+if(result.product.image){
+      var image_url = result.product.image.src;
     }else{
       var image_url = '';
     }
-    var uri = new URL(unfurlLinkMeta.original_url);
     var content = `<div class="linkz-popover-content">
       <div class="linkz-top">
-        <img src="${unfurlLinkMeta.service_icon}">
         <div class="linkz-main">
-            <div class="linkz-title" style="color:{{ block.settings.textColor }}; font-family: {{ linkz_font.family }}, {{ linkz_font.fallback_families }};">${unfurlLinkMeta.title} ${unfurlLinkMeta.author_name ? '-'+unfurlLinkMeta.author_name : ''}</div>
-            <div class="linkz-website" style="font-family: {{ linkz_font.family }}, {{ linkz_font.fallback_families }};">${uri.hostname}</div>
+        <div class="linkz-title" style="color:{{ block.settings.textColor }}; font-family: {{ linkz_font.family }}, {{ linkz_font.fallback_families }};">${result.product.title} ${result.product.vendor}</div>
+        <div class="linkz-website" style="font-family: {{ linkz_font.family }}, {{ linkz_font.fallback_families }};">${result.product.variants[0].price}</div>
+        </div>
+      </div>
+      <div class="linkz-image-continer">
+        <div class="linkz-image" style="background-image:url(${image_url})"></div>
+      </div>
+      <div class="linkz-description" style="color:{{ block.settings.textColor }}; font-family: {{ linkz_font.family }}, {{ linkz_font.fallback_families }};">${txt}</div>
+    </div>`;
+    element.querySelector('.linkz-popover').innerHTML = content; 
+ }
+
+// Event handler for mouseover
+async function handleMouseOveLinkz(event) {
+ const element = event.target;
+  if(element.querySelector('.linkz-popover-content')){
+    element.querySelector('.linkz-popover').classList.remove('linkz-hide');
+    return false;
+  }
+   const htmlContent = `<div class="linkz-popover">
+    <div class="linkz-popover-content">
+      <svg class="linkz-loader" viewBox="0 0 50 50">
+        <circle class="linkz-loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+      </svg>
+    </div>
+  </div>`;
+  element.insertAdjacentHTML('beforeend', htmlContent);
+
+  var unfurlLink = await fetch('/tools/meta?url='+encodeURIComponent(element.href));
+  var unfurlLinkMeta = await unfurlLink.json();
+  
+  console.log(unfurlLinkMeta,"testing-------");
+     if(unfurlLinkMeta.status == 'success'){
+     var txt = unfurlLinkMeta.data.description.length > 100 ? unfurlLinkMeta.data.description.substr(0,100)+ '...' : unfurlLinkMeta.data.description;
+
+     console.log(txt,"description");
+    if(unfurlLinkMeta.data.image.url){
+      var image_url = unfurlLinkMeta.data.image.url;
+    }else{
+      var image_url = '';
+    }
+   var content = `<div class="linkz-popover-content">
+      <div class="linkz-top">
+        <img src="${unfurlLinkMeta.data.logo.url}">
+        <div class="linkz-main">
+            <div class="linkz-title" style="color:{{ block.settings.textColor }}; font-family: {{ linkz_font.family }}, {{ linkz_font.fallback_families }};">${unfurlLinkMeta.data.title} ${unfurlLinkMeta.data.publisher ? '-'+unfurlLinkMeta.data.author : ''}</div>
+            <div class="linkz-website" style="font-family: {{ linkz_font.family }}, {{ linkz_font.fallback_families }};">${unfurlLinkMeta.data.url}</div>
         </div>
       </div>
       <div class="linkz-image-continer">
@@ -174,7 +228,6 @@ async function handleMouseOveLinkz(event) {
   }else{
     element.querySelector('.linkz-popover').innerHTML = `<div class="linkz-popover-content"><b>No Preview</b></div>`;
   }
-  
 }
 
 // Event handler for mouseout
@@ -184,6 +237,7 @@ function handleMouseOutLinkz(event) {
 }
 
 getThirdPartyUrls();
+
 </script>
 
 {% schema %}
@@ -198,7 +252,12 @@ getThirdPartyUrls();
           "id": "textFont",
           "label": "Heading font",
           "default": "helvetica_n4"
+        },
+        {
+        "type":"text",
+        "id": "exclude",
+        "label":"Add page url to exclude separated by commas"
         }
-        ]
-  }
+    ]
+}
 {% endschema %}
