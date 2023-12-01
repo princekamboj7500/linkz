@@ -5,12 +5,6 @@ import express from "express";
 import serveStatic from "serve-static";
 import axios from 'axios';
 import qs from 'qs';
-import metascraper from 'metascraper';
-import metascraperUrl from 'metascraper-url';
-import metascraperDate from 'metascraper-date';
-import metascraperTitle from 'metascraper-title';
-import metascraperDescription from 'metascraper-description';
-import metascraperImage from 'metascraper-image';
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
@@ -22,12 +16,7 @@ const PORT = parseInt(
 );
 
 
-// const metascraperInstance = metascraper([
-//   metascraperUrl()(),
-//   metascraperDate()(),
-//   metascraperTitle()(),
-//   metascraperDescription()(),
-// ]);
+
 const STATIC_PATH =
   process.env.NODE_ENV === "production"
     ? `${process.cwd()}/frontend/dist`
@@ -50,17 +39,7 @@ app.post(
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js
 
-app.get("api/test", async(req,res)=>{
-  const websiteUrl = req.query.url;
-  console.log("I  m called");
-  try {
-    const response = await metascraper({ url: websiteUrl });
-    res.json(response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch metadata' });
-  }
-})
+
 
 
 
@@ -109,23 +88,7 @@ app.get('/api/meta', async(req, res)=>{
   //   console.log(error);
   //   res.send(error)
   // });
-  
-
-
-  // await unfurl(websiteUrl)
-  // .then((re) => console.log(re))
-  // .catch(console.error)
-
-  // const result = await unfurl(websiteUrl);
-  // console.log(result);
-  // getMetaTags(websiteUrl)
-// .then((metaTags) => {
-//   res.send(metaTags)
-//   console.log('Meta tags:', metaTags);
-// })
-// .catch((error) => {
-//   console.error('Error:', error);
-// });
+ 
   
 });
 app.use("/api/*", shopify.validateAuthenticatedSession());
