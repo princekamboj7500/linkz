@@ -16,6 +16,12 @@
     "@shopify/cli": "3.45.4",
     "axios": "^1.4.0",
     "cheerio": "^1.0.0-rc.12",
+    "metascraper": "^5.39.0",
+    "metascraper-author": "^5.39.0",
+    "metascraper-date": "^5.39.0",
+    "metascraper-description": "^5.39.0",
+    "metascraper-image": "^5.39.0",
+    "metascraper-url": "^5.39.0",
     "qs": "^6.11.2",
     "simple-unfurl": "^1.0.1"
   },
